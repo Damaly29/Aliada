@@ -24,7 +24,7 @@ class EventsScreen extends StatefulWidget {
 class _EventsScreenState extends State<EventsScreen> {
   late final EventsController _controller;
   final _search = TextEditingController();
-  bool _latestExpanded = false;
+  bool _latestExpanded = true;
   bool _nearbyExpanded = false;
 
   @override

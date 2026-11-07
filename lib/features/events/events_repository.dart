@@ -43,6 +43,13 @@ class EventsRepository {
 
   SupabaseClient get _db => Cloud.instance.db;
 
+  /// Eventos próximos de la Agenda: espera a tener sesión para que `mi_estado`
+  /// refleje correctamente si esta usuaria está inscrita.
+  Future<List<Event>> fetchAgendaEvents() async {
+    await _ensureAuth();
+    return fetchEvents();
+  }
+
   Future<List<Event>> fetchEvents({String? search, DateTime? day, String? eventId}) async {
     await _ensureClient();
     final response = await _db.rpc('events_feed', params: {

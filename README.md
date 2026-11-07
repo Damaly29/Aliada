@@ -95,6 +95,15 @@ insert into public.events (
 
 Solo los eventos con `estado = 'publicado'` aparecen en la app.
 
+Para cargar los seis eventos de ejemplo de la cartelera y la Agenda de Inicio,
+ejecuta `supabase/seed_events.sql` en el SQL Editor después de aplicar el esquema.
+El archivo actualiza la Feria de Bienestar y agrega los títulos que falten, así
+que se puede volver a ejecutar sin duplicar estos eventos.
+
+Los eventos gratuitos permiten confirmar la inscripción desde la app. Los eventos
+con precio muestran su costo, pero la pasarela todavía no está conectada; por eso
+la app no confirma ni cobra una inscripción pagada.
+
 ### Diagnóstico
 
 Si la app muestra «No hay eventos disponibles» pero crees que hay eventos, ejecuta

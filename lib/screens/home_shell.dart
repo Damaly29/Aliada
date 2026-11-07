@@ -20,6 +20,14 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
+  int _agendaRefreshToken = 0;
+
+  void _selectTab(int index) {
+    setState(() {
+      _index = index;
+      if (index == 0) _agendaRefreshToken++;
+    });
+  }
 
   @override
   void initState() {
@@ -61,7 +69,11 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      DashboardScreen(onOpenMessages: () => setState(() => _index = 2)),
+      DashboardScreen(
+        onOpenMessages: () => setState(() => _index = 2),
+        onOpenEvents: () => setState(() => _index = 1),
+        refreshToken: _agendaRefreshToken,
+      ),
       EventsScreen(onBack: () => setState(() => _index = 0)),
       const MessagesScreen(),
       const AccompanyScreen(),
@@ -71,7 +83,7 @@ class _HomeShellState extends State<HomeShell> {
       body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: AppTabBar(
         index: _index,
-        onTap: (i) => setState(() => _index = i),
+        onTap: _selectTab,
         center: SosButton(active: false, onTrigger: _triggerSos, onCancelPress: () {}),
       ),
     );
