@@ -24,7 +24,7 @@ class EventsScreen extends StatefulWidget {
 class _EventsScreenState extends State<EventsScreen> {
   late final EventsController _controller;
   final _search = TextEditingController();
-  bool _latestExpanded = true;
+  bool _latestExpanded = false;
   bool _nearbyExpanded = false;
 
   @override
@@ -49,16 +49,17 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 
   Future<void> _openDateFilter() async {
-    final selection = await showEventDatePicker(context, initialDate: _controller.day);
+    final selection = await showEventDatePicker(
+      context,
+      initialDate: _controller.day,
+    );
     if (!mounted || selection == null) return;
     _controller.setDay(selection.date);
   }
 
   Future<void> _openDetail(Event event) async {
     await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => EventDetailScreen(event: event),
-      ),
+      MaterialPageRoute<void>(builder: (_) => EventDetailScreen(event: event)),
     );
     if (!mounted) return;
     await _controller.refresh();
@@ -75,7 +76,9 @@ class _EventsScreenState extends State<EventsScreen> {
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(SnackBar(content: Text(message), behavior: SnackBarBehavior.floating));
+    messenger.showSnackBar(
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+    );
   }
 
   void _clearFilters() {
@@ -94,8 +97,10 @@ class _EventsScreenState extends State<EventsScreen> {
           builder: (context, _) {
             final latest = _controller.latest;
             final nearby = _controller.nearby;
-            final initialLoading = _controller.loading && _controller.events.isEmpty;
-            final hasErrorWithoutData = _controller.error != null && _controller.events.isEmpty;
+            final initialLoading =
+                _controller.loading && _controller.events.isEmpty;
+            final hasErrorWithoutData =
+                _controller.error != null && _controller.events.isEmpty;
 
             return RefreshIndicator(
               color: AppColors.primary,
@@ -107,8 +112,10 @@ class _EventsScreenState extends State<EventsScreen> {
                 children: [
                   _buildHeader(context),
                   _buildSearch(context),
+                  _buildCategories(),
                   if (_controller.day != null) _buildDateChip(),
-                  if (_controller.error != null && _controller.events.isNotEmpty)
+                  if (_controller.error != null &&
+                      _controller.events.isNotEmpty)
                     _buildInlineError(),
                   if (_controller.loading && _controller.events.isNotEmpty)
                     const Padding(
@@ -163,29 +170,21 @@ class _EventsScreenState extends State<EventsScreen> {
 
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      padding: const EdgeInsets.fromLTRB(22, 12, 20, 0),
       child: Row(
         children: [
-          EventCircleButton(
-            icon: Icons.arrow_back_rounded,
+          IconButton(
             onPressed: _goBack,
-            tooltip: 'Regresar',
-            size: 42,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Edúcate',
-                  style: AppText.h1.copyWith(fontSize: 28, color: AppColors.primaryDark),
-                ),
-                Text('Eventos para ti', style: AppText.caption.copyWith(fontSize: 12)),
-              ],
+            icon: const Icon(
+              Icons.arrow_back_rounded,
+              color: AppColors.primary,
             ),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints.tightFor(width: 24, height: 32),
+            tooltip: 'Regresar',
           ),
-          const EventPill(label: 'Eventos', icon: Icons.event_available_rounded),
+          const SizedBox(width: 10),
+          Text('Educate', style: AppText.bodyStrong.copyWith(fontSize: 14)),
         ],
       ),
     );
@@ -193,44 +192,97 @@ class _EventsScreenState extends State<EventsScreen> {
 
   Widget _buildSearch(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
       child: Row(
         children: [
           Expanded(
             child: Container(
-              height: 52,
+              height: 38,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: eventCardShadow,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border),
               ),
               child: TextField(
                 controller: _search,
                 textInputAction: TextInputAction.search,
                 onChanged: _controller.setSearch,
-                style: AppText.body.copyWith(fontSize: 13.5),
+                style: AppText.body.copyWith(fontSize: 11.5),
                 decoration: InputDecoration(
-                  hintText: 'Buscar por nombre o lugar',
-                  hintStyle: AppText.body.copyWith(color: AppColors.gray, fontSize: 13),
-                  prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primary, size: 21),
+                  hintText: 'Buscar evento',
+                  hintStyle: AppText.body.copyWith(
+                    color: const Color(0xFFAC7CCB),
+                    fontSize: 11.5,
+                  ),
                   suffixIcon: _search.text.isEmpty
-                      ? null
+                      ? const Icon(
+                          Icons.search_rounded,
+                          color: AppColors.gray,
+                          size: 17,
+                        )
                       : IconButton(
                           onPressed: () {
                             _search.clear();
                             _controller.setSearch('');
                           },
-                          icon: const Icon(Icons.close_rounded, size: 18, color: AppColors.gray),
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            size: 18,
+                            color: AppColors.gray,
+                          ),
                           tooltip: 'Limpiar búsqueda',
                         ),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 10,
+                  ),
+                  isDense: true,
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 10),
-          _CalendarButton(active: _controller.day != null, onTap: _openDateFilter),
+          const SizedBox(width: 8),
+          _CalendarButton(
+            active: _controller.day != null,
+            onTap: _openDateFilter,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategories() {
+    const categories = ['Eventos', 'Talleres', 'Grupos', 'Webinar'];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Row(
+        children: [
+          for (var index = 0; index < categories.length; index++) ...[
+            if (index > 0) const SizedBox(width: 6),
+            Expanded(
+              child: Container(
+                height: 32,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: index == 0
+                      ? AppColors.primary
+                      : const Color(0xFFF0F0F2),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Text(
+                  categories[index],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppText.caption.copyWith(
+                    fontSize: 10.5,
+                    color: index == 0 ? Colors.white : AppColors.gray,
+                    fontWeight: index == 0 ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -243,12 +295,22 @@ class _EventsScreenState extends State<EventsScreen> {
         alignment: Alignment.centerLeft,
         child: InputChip(
           label: Text(formatEventDateChip(_controller.day!)),
-          avatar: const Icon(Icons.calendar_today_rounded, size: 15, color: AppColors.primaryDark),
+          avatar: const Icon(
+            Icons.calendar_today_rounded,
+            size: 15,
+            color: AppColors.primaryDark,
+          ),
           onDeleted: () => _controller.setDay(null),
-          deleteIcon: const Icon(Icons.close_rounded, size: 16, color: AppColors.primaryDark),
+          deleteIcon: const Icon(
+            Icons.close_rounded,
+            size: 16,
+            color: AppColors.primaryDark,
+          ),
           backgroundColor: AppColors.primarySoft,
           side: BorderSide.none,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(99)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(99),
+          ),
           labelStyle: const TextStyle(
             fontFamily: AppFonts.ui,
             fontWeight: FontWeight.w600,
@@ -271,7 +333,11 @@ class _EventsScreenState extends State<EventsScreen> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.cloud_off_rounded, size: 18, color: AppColors.primary),
+          const Icon(
+            Icons.cloud_off_rounded,
+            size: 18,
+            color: AppColors.primary,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -296,18 +362,19 @@ class _EventsScreenState extends State<EventsScreen> {
 
   Widget _buildLatest(BuildContext context, List<Event> latest) {
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final cardWidth = math.min(screenWidth * 0.84, 330.0);
-    final textScale = MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.35).toDouble();
-    final cardHeight = 366.0 * textScale;
+    final cardWidth = math.min(screenWidth * 0.64, 258.0);
+    final textScale = MediaQuery.textScalerOf(context)
+        .scale(1)
+        .clamp(1.0, 1.35)
+        .toDouble();
+    final cardHeight = 306.0 * textScale;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        EventSectionHeader(
-          title: 'Últimos eventos',
-          subtitle: 'Recién publicados',
-          actionLabel: _latestExpanded ? 'Ver menos' : 'Ver todo',
-          actionIcon: _latestExpanded ? Icons.expand_less_rounded : Icons.arrow_forward_rounded,
+        _sectionHeading(
+          title: 'Últimos Eventos',
+          expanded: _latestExpanded,
           onAction: () => setState(() => _latestExpanded = !_latestExpanded),
         ),
         if (_latestExpanded)
@@ -331,12 +398,8 @@ class _EventsScreenState extends State<EventsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: latest.length,
               separatorBuilder: (_, _) => const SizedBox(width: 12),
-              itemBuilder: (context, index) => _card(
-                latest[index],
-                width: cardWidth,
-                height: cardHeight,
-                compact: true,
-              ),
+              itemBuilder: (context, index) =>
+                  _card(latest[index], width: cardWidth, height: cardHeight),
             ),
           ),
       ],
@@ -349,17 +412,21 @@ class _EventsScreenState extends State<EventsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        EventSectionHeader(
+        _sectionHeading(
           title: 'Eventos cerca de ti',
-          subtitle: _controller.hasPosition ? 'A menos de 25 km' : 'Ordenados por fecha',
-          actionLabel: _nearbyExpanded ? 'Ver menos' : 'Ver todo',
-          actionIcon: _nearbyExpanded ? Icons.expand_less_rounded : Icons.arrow_forward_rounded,
-          onAction: nearby.isEmpty ? null : () => setState(() => _nearbyExpanded = !_nearbyExpanded),
+          expanded: _nearbyExpanded,
+          onAction: nearby.isEmpty
+              ? null
+              : () => setState(() => _nearbyExpanded = !_nearbyExpanded),
         ),
         if (!_controller.hasPosition && _controller.locationNotice != null)
           _LocationNotice(
             message: _controller.locationNotice!,
-            actionLabel: _controller.locationServiceDisabled || _controller.locationPermanentlyDenied ? 'Ajustes' : 'Activar',
+            actionLabel:
+                _controller.locationServiceDisabled ||
+                    _controller.locationPermanentlyDenied
+                ? 'Ajustes'
+                : 'Activar',
             onEnable: _controller.enableLocation,
           ),
         if (nearby.isEmpty)
@@ -374,16 +441,48 @@ class _EventsScreenState extends State<EventsScreen> {
               children: [
                 for (final event in visible)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _card(
-                      event,
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: EventListRowCard(
+                      event: event,
                       distanceLabel: _distanceLabel(event),
+                      onTap: () => _openDetail(event),
                     ),
                   ),
               ],
             ),
           ),
       ],
+    );
+  }
+
+  Widget _sectionHeading({
+    required String title,
+    required bool expanded,
+    required VoidCallback? onAction,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(title, style: AppText.h2.copyWith(fontSize: 18)),
+          ),
+          if (onAction != null)
+            TextButton(
+              onPressed: onAction,
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.text,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(
+                expanded ? 'Ver menos' : 'Ver todo',
+                style: AppText.caption.copyWith(fontSize: 10.5),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -423,23 +522,36 @@ class _CalendarButton extends StatelessWidget {
     return Tooltip(
       message: 'Filtrar por fecha',
       child: Container(
-        width: 52,
-        height: 52,
+        width: 64,
+        height: 38,
         decoration: BoxDecoration(
-          color: active ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: eventCardShadow,
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Material(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(10),
           child: InkWell(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(10),
             onTap: onTap,
-            child: Icon(
-              Icons.calendar_month_rounded,
-              color: active ? Colors.white : AppColors.primary,
-              size: 23,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  active ? 'Fecha' : 'Hoy',
+                  style: AppText.caption.copyWith(
+                    color: Colors.white,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(
+                  Icons.calendar_month_rounded,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ],
             ),
           ),
         ),
@@ -449,7 +561,11 @@ class _CalendarButton extends StatelessWidget {
 }
 
 class _LocationNotice extends StatelessWidget {
-  const _LocationNotice({required this.message, required this.actionLabel, required this.onEnable});
+  const _LocationNotice({
+    required this.message,
+    required this.actionLabel,
+    required this.onEnable,
+  });
 
   final String message;
   final String actionLabel;
@@ -466,12 +582,19 @@ class _LocationNotice extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.location_off_outlined, size: 18, color: AppColors.primary),
+          const Icon(
+            Icons.location_off_outlined,
+            size: 18,
+            color: AppColors.primary,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               message,
-              style: AppText.caption.copyWith(color: AppColors.primaryDark, height: 1.35),
+              style: AppText.caption.copyWith(
+                color: AppColors.primaryDark,
+                height: 1.35,
+              ),
             ),
           ),
           TextButton(

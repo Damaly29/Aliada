@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../core/app_state.dart';
 import '../features/events/event_models.dart';
 import '../features/events/events_repository.dart';
@@ -56,18 +57,23 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   Future<List<Event>> _loadAgenda() async {
     final events = await EventsRepository.instance.fetchAgendaEvents();
-    final upcoming = events
-        .where((event) =>
-            !event.hasEnded &&
-            (event.registration == RegistrationState.confirmed ||
-                event.registration == RegistrationState.pendingPayment))
-        .toList()
-      ..sort((a, b) => a.startAt.compareTo(b.startAt));
+    final upcoming =
+        events
+            .where(
+              (event) =>
+                  !event.hasEnded &&
+                  (event.registration == RegistrationState.confirmed ||
+                      event.registration == RegistrationState.pendingPayment),
+            )
+            .toList()
+          ..sort((a, b) => a.startAt.compareTo(b.startAt));
     return upcoming.take(6).toList();
   }
 
   void _refreshAgenda() {
-    setState(() => _agendaFuture = _loadAgenda());
+    setState(() {
+      _agendaFuture = _loadAgenda();
+    });
   }
 
   Future<void> _openEvent(Event event) async {
@@ -91,25 +97,56 @@ class _DashboardScreenState extends State<DashboardScreen>
             children: [
               // Header "Hola, Nicolle"
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), boxShadow: AppShadows.card),
-                child: Row(children: [
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProfileScreen())),
-                    child: Avatar(name: s.nombre, size: 36, color: const Color(0xFF6B4F3A), ring: Colors.white),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text.rich(TextSpan(
-                      style: const TextStyle(fontFamily: AppFonts.title, fontSize: 17, color: AppColors.primary),
-                      children: [
-                        const TextSpan(text: 'Hola, ', style: TextStyle(fontWeight: FontWeight.w700)),
-                        TextSpan(text: s.nombre),
-                      ],
-                    )),
-                  ),
-                  const Icon(Icons.notifications_none_rounded, color: AppColors.primary, size: 22),
-                ]),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: AppShadows.card,
+                ),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const ProfileScreen(),
+                        ),
+                      ),
+                      child: Avatar(
+                        name: s.nombre,
+                        size: 36,
+                        color: const Color(0xFF6B4F3A),
+                        ring: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text.rich(
+                        TextSpan(
+                          style: const TextStyle(
+                            fontFamily: AppFonts.title,
+                            fontSize: 17,
+                            color: AppColors.primary,
+                          ),
+                          children: [
+                            const TextSpan(
+                              text: 'Hola, ',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            TextSpan(text: s.nombre),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.notifications_none_rounded,
+                      color: AppColors.primary,
+                      size: 22,
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
               // Acceso rápido a LumAI
@@ -119,21 +156,50 @@ class _DashboardScreenState extends State<DashboardScreen>
                 elevation: 0,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(8),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LumaiScreen())),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const LumaiScreen()),
+                  ),
                   child: Container(
                     padding: const EdgeInsets.fromLTRB(8, 6, 12, 6),
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), boxShadow: AppShadows.card, color: Colors.white),
-                    child: Row(children: [
-                      Image.asset(lumaiAvatar, height: 54),
-                      const SizedBox(width: 8),
-                      const Expanded(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text('¿Necesitas orientación?', style: TextStyle(fontFamily: AppFonts.title, fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.primary)),
-                          Text('Habla con LumAI, confidencial y sin juicios', style: TextStyle(fontFamily: AppFonts.ui, fontSize: 11.5, color: AppColors.text)),
-                        ]),
-                      ),
-                      const Icon(Icons.chevron_right_rounded, color: AppColors.primary),
-                    ]),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: AppShadows.card,
+                      color: Colors.white,
+                    ),
+                    child: Row(
+                      children: [
+                        Image.asset(lumaiAvatar, height: 54),
+                        const SizedBox(width: 8),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '¿Necesitas orientación?',
+                                style: TextStyle(
+                                  fontFamily: AppFonts.title,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              Text(
+                                'Habla con LumAI, confidencial y sin juicios',
+                                style: TextStyle(
+                                  fontFamily: AppFonts.ui,
+                                  fontSize: 11.5,
+                                  color: AppColors.text,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          color: AppColors.primary,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -148,7 +214,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Padding(
                           padding: EdgeInsets.symmetric(vertical: 18),
-                          child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                          child: Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
                         );
                       }
                       if (snapshot.hasError) {
@@ -169,7 +237,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                       return Column(
                         children: [
                           for (final event in events)
-                            _AgendaEventTile(event: event, onTap: () => _openEvent(event)),
+                            _AgendaEventTile(
+                              event: event,
+                              onTap: () => _openEvent(event),
+                            ),
                         ],
                       );
                     },
@@ -184,7 +255,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                   const SearchField(hint: 'Buscar conversación'),
                   const SizedBox(height: 6),
                   for (final c in demoConversations)
-                    ConversationTile(name: c.$1, preview: c.$2, time: c.$3, unread: c.$4, color: Color(c.$5), onTap: widget.onOpenMessages),
+                    ConversationTile(
+                      name: c.$1,
+                      preview: c.$2,
+                      time: c.$3,
+                      unread: c.$4,
+                      color: Color(c.$5),
+                      onTap: widget.onOpenMessages,
+                    ),
                 ],
               ),
             ],
@@ -205,7 +283,10 @@ class _AgendaEventTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final (status, color) = switch (event.registration) {
       RegistrationState.confirmed => ('Inscrita', const Color(0xFF3C7A32)),
-      RegistrationState.pendingPayment => ('Pago pendiente', const Color(0xFF9A6700)),
+      RegistrationState.pendingPayment => (
+        'Pago pendiente',
+        const Color(0xFF9A6700),
+      ),
       _ => ('No inscrita', AppColors.gray),
     };
     final modalityIcon = event.modality == EventModality.virtual
@@ -274,7 +355,10 @@ class _AgendaEventTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: color.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(99),
@@ -290,7 +374,11 @@ class _AgendaEventTile extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 3),
-                    const Icon(Icons.chevron_right_rounded, color: AppColors.primary, size: 18),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.primary,
+                      size: 18,
+                    ),
                   ],
                 ),
               ],

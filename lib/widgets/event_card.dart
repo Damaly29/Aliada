@@ -29,67 +29,65 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageHeight = compact ? 142.0 : 168.0;
+    final imageHeight = compact ? 142.0 : 162.0;
     final status = event.hasEnded
         ? 'Finalizado'
         : event.isSoldOut
-            ? 'Cupos agotados'
-            : null;
+        ? 'Cupos agotados'
+        : null;
 
     final content = Padding(
-      padding: const EdgeInsets.fromLTRB(14, 13, 14, 13),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 11),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: height == null ? MainAxisSize.min : MainAxisSize.max,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: EventPill(label: event.category),
-                ),
-              ),
-              const SizedBox(width: 8),
-              EventPill(
-                label: event.priceLabel,
-                background: event.isFree ? const Color(0xFFE6F6DE) : AppColors.primarySoft,
-                foreground: event.isFree ? const Color(0xFF3C7A32) : AppColors.primaryDark,
-              ),
-            ],
-          ),
-          const SizedBox(height: 9),
           Text(
             event.title,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: AppText.h3.copyWith(fontSize: 16.5, height: 1.28),
+            style: AppText.bodyStrong.copyWith(fontSize: 13, height: 1.2),
           ),
-          const SizedBox(height: 8),
-          _CardLine(
-            icon: Icons.calendar_today_rounded,
-            text: '${formatEventDay(event.startAt)} · ${formatEventRange(event)}',
+          const SizedBox(height: 5),
+          Text(
+            '${formatEventDay(event.startAt)} · ${formatEventRange(event)}',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppText.caption.copyWith(
+              color: AppColors.primaryDark,
+              fontSize: 10.5,
+              height: 1.25,
+            ),
           ),
           const SizedBox(height: 5),
           _CardLine(
-            icon: event.modality == EventModality.virtual ? Icons.videocam_outlined : Icons.place_outlined,
+            icon: Icons.place_outlined,
             text: event.venue,
             trailing: distanceLabel,
           ),
-          if (height != null && height! > 0) const Spacer() else const SizedBox(height: 10),
+          if (height != null && height! > 0)
+            const Spacer()
+          else
+            const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.people_alt_outlined, size: 15, color: AppColors.gray),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  '${event.attendees} ${event.attendees == 1 ? 'inscrita' : 'inscritas'}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppText.caption,
-                ),
+              EventPill(
+                label: event.modalityLabel,
+                background: const Color(0xFFF0F0F2),
+                foreground: AppColors.text,
               ),
-              const Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.primary),
+              const SizedBox(width: 6),
+              EventPill(
+                label: event.priceLabel,
+                background: const Color(0xFFF0F0F2),
+                foreground: AppColors.text,
+              ),
+              const Spacer(),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: AppColors.primary,
+              ),
             ],
           ),
         ],
@@ -134,18 +132,28 @@ class EventCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Positioned(top: 10, left: 10, child: _DateBadge(date: event.startAt)),
+                    Positioned(
+                      top: 10,
+                      left: 10,
+                      child: _DateBadge(date: event.startAt),
+                    ),
                     Positioned(
                       top: 9,
                       right: 9,
                       child: Row(
                         children: [
                           EventCircleButton(
-                            icon: event.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                            foreground: event.isFavorite ? AppColors.primary : AppColors.text,
+                            icon: event.isFavorite
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                            foreground: event.isFavorite
+                                ? AppColors.primary
+                                : AppColors.text,
                             background: Colors.white.withValues(alpha: 0.95),
                             size: 34,
-                            tooltip: event.isFavorite ? 'Quitar de favoritos' : 'Guardar en favoritos',
+                            tooltip: event.isFavorite
+                                ? 'Quitar de favoritos'
+                                : 'Guardar en favoritos',
                             onPressed: onToggleFavorite,
                           ),
                           const SizedBox(width: 6),
@@ -159,34 +167,127 @@ class EventCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Positioned(
-                      left: 12,
-                      right: 12,
-                      bottom: 10,
-                      child: Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
-                        children: [
-                          EventPill(
-                            label: event.modalityLabel,
-                            icon: event.modality == EventModality.virtual ? Icons.videocam_outlined : Icons.groups_2_outlined,
-                            background: Colors.white.withValues(alpha: 0.93),
-                            foreground: AppColors.primaryDark,
-                          ),
-                          if (status != null)
-                            EventPill(
-                              label: status,
-                              background: event.hasEnded ? const Color(0xFF6B7280) : const Color(0xFFC2410C),
-                              foreground: Colors.white,
-                            ),
-                        ],
+                    if (status != null)
+                      Positioned(
+                        left: 12,
+                        bottom: 10,
+                        child: EventPill(
+                          label: status,
+                          background: event.hasEnded
+                              ? const Color(0xFF6B7280)
+                              : const Color(0xFFC2410C),
+                          foreground: Colors.white,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
-              if (height != null && height! > 0) Expanded(child: content) else content,
+              if (height != null && height! > 0)
+                Expanded(child: content)
+              else
+                content,
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Tarjeta compacta para los eventos en la lista vertical de cercanos.
+class EventListRowCard extends StatelessWidget {
+  const EventListRowCard({
+    super.key,
+    required this.event,
+    required this.onTap,
+    this.distanceLabel,
+  });
+
+  final Event event;
+  final VoidCallback onTap;
+  final String? distanceLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 92,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: eventCardShadow,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(11),
+                  child: EventImage(
+                    imageUrl: event.imageUrl,
+                    width: 76,
+                    height: 76,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        event.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppText.bodyStrong.copyWith(
+                          fontSize: 11.5,
+                          height: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        '${formatEventDay(event.startAt)} · ${formatEventRange(event)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppText.caption.copyWith(fontSize: 9.5),
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.place_outlined,
+                            size: 12,
+                            color: AppColors.gray,
+                          ),
+                          const SizedBox(width: 3),
+                          Expanded(
+                            child: Text(
+                              distanceLabel == null
+                                  ? event.venue
+                                  : '${event.venue} · $distanceLabel',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppText.caption.copyWith(fontSize: 9.5),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          EventPill(
+                            label: event.priceLabel,
+                            background: const Color(0xFFF0F0F2),
+                            foreground: AppColors.text,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -206,7 +307,13 @@ class _DateBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.96),
         borderRadius: BorderRadius.circular(13),
-        boxShadow: const [BoxShadow(color: Color(0x24000000), blurRadius: 10, offset: Offset(0, 3))],
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x24000000),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -255,14 +362,19 @@ class _CardLine extends StatelessWidget {
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppText.caption.copyWith(color: AppColors.text.withValues(alpha: 0.78)),
+            style: AppText.caption.copyWith(
+              color: AppColors.text.withValues(alpha: 0.78),
+            ),
           ),
         ),
         if (trailing != null) ...[
           const SizedBox(width: 6),
           Text(
             trailing!,
-            style: AppText.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600),
+            style: AppText.caption.copyWith(
+              color: AppColors.primary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ],
