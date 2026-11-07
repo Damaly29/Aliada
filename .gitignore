@@ -36,6 +36,65 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-# generated native folders
-/ios
-/android
+# generated native folders (Expo legacy - not for Flutter)
+.expo/
+web-build/
+
+# Android build & local files
+android/.gradle/
+android/.kotlin/
+android/local.properties
+android/secrets.properties
+android/app/build/
+android/.cxx/
+
+# iOS build & local files
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/flutter_assets/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Runner/GeneratedPluginRegistrant.*
+ios/Runner/GoogleService-Info.plist
+
+.env
+.env.local
+supabase/.temp
+
+# Flutter
+.dart_tool/
+build/
+.flutter-plugins-dependencies
+*.iml
+supabase.env
+supabase.json
+
+# Secretos locales (nunca versionar)
+secrets.properties
+env.json
+android/secrets.properties
+android/local.properties
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Runner/GoogleService-Info.plist
+google-services.json
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Documentación y fichas internas de trabajo (no versionar)
+info/
+*.docx
+*.pdf
+
+# Artefactos de build / IDE
+*.apk
+*.aab
+*.ipa
+.idea/
+.DS_Store
+pubspec.lock.bak

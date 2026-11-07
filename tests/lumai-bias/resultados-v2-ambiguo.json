@@ -1,0 +1,19 @@
+[
+ {
+  "id": "ambiguo",
+  "resp": {
+   "model": "gemini-3-flash-preview",
+   "riesgo": "posible",
+   "respuesta": "No estás exagerando por preguntarlo: lo que sientes importa y es válido. Un trato que te hace sentir incómoda puede ser una conducta invasiva o sexista, aunque la otra persona no lo vea así. En el ámbito universitario, todas tenemos derecho a un espacio seguro y de respeto.\n\nNo tienes que decidir nada ahora ni calificar lo que pasó. ¿Te gustaría que te explique qué opciones de orientación existen en tu universidad o prefieres hablar con alguien de Bienestar o psicología para desahogarte? Esto no es una decisión institucional, solo estoy aquí para acompañarte.",
+   "prompt_version": "v2-2026-09-26",
+   "acciones_sugeridas": [
+    "contactar_psicologia",
+    "contactar_bienestar"
+   ],
+   "sugerir_derivacion": true,
+   "necesidad_detectada": "no_claro"
+  },
+  "fails": [],
+  "judge": null
+ }
+]
