@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Aliada (debug)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["--dart-define-from-file=supabase.json"]
+    },
+    {
+      "name": "Aliada (profile)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["--dart-define-from-file=supabase.json"],
+      "flutterMode": "profile"
+    },
+    {
+      "name": "Aliada (release)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["--dart-define-from-file=supabase.json"],
+      "flutterMode": "release"
+    }
+  ]
+}

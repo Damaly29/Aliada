@@ -39,3 +39,15 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+.env
+.env.local
+supabase/.temp
+
+# Flutter
+.dart_tool/
+build/
+.flutter-plugins-dependencies
+*.iml
+supabase.env
+supabase.json
