@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pago de evento · Aliada</title>
+    <script src="https://js.culqi.com/checkout-js"></script>
+    <style>
+      :root { color-scheme: light; font-family: system-ui, -apple-system, Segoe UI, sans-serif; }
+      body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f7f5fc; color: #28243a; }
+      main { width: min(92vw, 440px); padding: 28px; box-sizing: border-box; border-radius: 24px; background: #fff; box-shadow: 0 12px 48px #271b4014; text-align: center; }
+      h1 { margin: 0 0 8px; font-size: 22px; }
+      p { color: #686477; line-height: 1.55; }
+      button { width: 100%; min-height: 50px; margin-top: 12px; border: 0; border-radius: 14px; background: #7052c7; color: #fff; font-size: 16px; font-weight: 650; cursor: pointer; }
+      button:disabled { opacity: .55; cursor: wait; }
+      #status { min-height: 24px; margin-top: 14px; font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Finaliza tu inscripción</h1>
+      <p>Escanea el QR con Yape o Plin. Cerraremos esta ventana cuando Culqi confirme el pago.</p>
+      <button id="pay" disabled>Abriendo pago seguro…</button>
+      <div id="status" role="status"></div>
+    </main>
+    <script>
+      const publicKey = '__PUBLIC_KEY__';
+      const orderId = '__ORDER_ID__';
+      const amount = Number('__AMOUNT__');
+      const title = __TITLE__;
+      const anonKey = __ANON_KEY__;
+      const apiPath = location.pathname.replace(/\/checkout$/, '');
+      const button = document.getElementById('pay');
+      const status = document.getElementById('status');
+      let checkout;
+      let stopped = false;
+
+      async function pollStatus() {
+        while (!stopped) {
+          await new Promise((resolve) => setTimeout(resolve, 4000));
+          if (stopped) return;
+          try {
+            const response = await fetch(apiPath, {
+              method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': anonKey },
+              body: JSON.stringify({ action: 'public-payment-status', order_id: orderId }),
+            });
+            const body = await response.json();
+            if (body.status === 'paid') {
+              stopped = true;
+              status.textContent = 'Pago confirmado. Ya estás inscrita.';
+              window.opener?.postMessage({ type: 'ALIADA_PAYMENT_CONFIRMED', orderId }, location.origin);
+              window.close();
+              return;
+            }
+            if (body.status === 'expired') {
+              stopped = true;
+              status.textContent = 'La orden venció. Regresa a Aliada para intentarlo otra vez.';
+              button.disabled = true;
+              return;
+            }
+          } catch (_) { /* Se reintentará mientras el checkout siga abierto. */ }
+        }
+      }
+
+      function reportOrderCreated() {
+        const order = checkout?.order;
+        if (!order?.id) return;
+        status.textContent = 'Orden creada. Esperando que Culqi confirme el pago…';
+        window.opener?.postMessage({ type: 'ALIADA_PAYMENT_PENDING', orderId: order.id }, location.origin);
+      }
+
+      if (!publicKey || !orderId || !Number.isFinite(amount) || !window.CulqiCheckout) {
+        status.textContent = 'No pudimos cargar el checkout de Culqi.';
+      } else {
+        const config = {
+          settings: { title, currency: 'PEN', amount, order: orderId },
+          client: {},
+          options: {
+            lang: 'es',
+            installments: false,
+            modal: false,
+            paymentMethods: { tarjeta: false, yape: false, billetera: true, bancaMovil: false, agente: false, cuotealo: false },
+            paymentMethodsSort: ['billetera'],
+          },
+        };
+        checkout = new CulqiCheckout(publicKey, config);
+        checkout.culqi = reportOrderCreated;
+        button.disabled = false;
+        button.textContent = 'Abrir pago seguro';
+        button.addEventListener('click', () => checkout.open());
+        pollStatus();
+      }
+    </script>
+  </body>
+</html>

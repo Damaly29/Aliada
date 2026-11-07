@@ -90,11 +90,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (_) => EventAttendeesSheet(
-        eventId: _event.id,
-        count: _event.attendees,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
+      builder: (_) =>
+          EventAttendeesSheet(eventId: _event.id, count: _event.attendees),
     );
   }
 
@@ -102,6 +102,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final cta = _event.cta;
     if (cta == EventCta.paid || cta == EventCta.pendingPayment) {
       await showEventCheckoutSheet(context, _event);
+      if (mounted) await _refresh(silent: true);
       return;
     }
     if (cta != EventCta.free) return;
@@ -112,8 +113,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         title: const Text('Confirmar inscripción'),
         content: Text('¿Quieres inscribirte en "${_event.title}"?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: const Text('Inscribirme')),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Inscribirme'),
+          ),
         ],
       ),
     );
@@ -126,7 +133,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     } catch (_) {
       if (mounted) {
         setState(() => _registering = false);
-        _snack('No pudimos completar tu inscripción. Revisa tu conexión e inténtalo de nuevo.');
+        _snack(
+          'No pudimos completar tu inscripción. Revisa tu conexión e inténtalo de nuevo.',
+        );
       }
       return;
     }
@@ -157,14 +166,18 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     }
 
     final message = switch (result.outcome) {
-      RegistrationOutcome.confirmed => '¡Listo! Ya estás inscrita en ${_event.title}.',
-      RegistrationOutcome.alreadyRegistered => 'Ya estás inscrita en este evento.',
+      RegistrationOutcome.confirmed =>
+        '¡Listo! Ya estás inscrita en ${_event.title}.',
+      RegistrationOutcome.alreadyRegistered =>
+        'Ya estás inscrita en este evento.',
       RegistrationOutcome.soldOut => 'Lo sentimos, los cupos se agotaron.',
       RegistrationOutcome.ended => 'El evento ya finalizó.',
       RegistrationOutcome.requiresPayment => 'Este evento requiere pago.',
       RegistrationOutcome.unavailable => 'El evento ya no está disponible.',
       RegistrationOutcome.notAuthenticated => 'Inicia sesión para inscribirte.',
-      RegistrationOutcome.error => result.message ?? 'No pudimos completar tu inscripción. Inténtalo de nuevo.',
+      RegistrationOutcome.error =>
+        result.message ??
+            'No pudimos completar tu inscripción. Inténtalo de nuevo.',
     };
     _snack(message);
   }
@@ -173,7 +186,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(SnackBar(content: Text(message), behavior: SnackBarBehavior.floating));
+    messenger.showSnackBar(
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+    );
   }
 
   @override
@@ -196,9 +211,17 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.event_busy_rounded, size: 52, color: AppColors.primary),
+                const Icon(
+                  Icons.event_busy_rounded,
+                  size: 52,
+                  color: AppColors.primary,
+                ),
                 const SizedBox(height: 12),
-                Text('Este evento ya no está disponible', textAlign: TextAlign.center, style: AppText.h2),
+                Text(
+                  'Este evento ya no está disponible',
+                  textAlign: TextAlign.center,
+                  style: AppText.h2,
+                ),
                 const SizedBox(height: 6),
                 Text(
                   'Puede que haya sido cancelado o que ya no esté publicado.',
@@ -254,7 +277,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     const radius = BorderRadius.vertical(bottom: Radius.circular(28));
     return Stack(
       children: [
-        EventImage(imageUrl: _event.imageUrl, height: 300, borderRadius: radius),
+        EventImage(
+          imageUrl: _event.imageUrl,
+          height: 300,
+          borderRadius: radius,
+        ),
         Positioned.fill(
           child: IgnorePointer(
             child: DecoratedBox(
@@ -292,10 +319,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           ),
           const Spacer(),
           EventCircleButton(
-            icon: _event.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+            icon: _event.isFavorite
+                ? Icons.favorite_rounded
+                : Icons.favorite_border_rounded,
             foreground: _event.isFavorite ? AppColors.primary : AppColors.text,
             onPressed: _toggleFavorite,
-            tooltip: _event.isFavorite ? 'Quitar de favoritos' : 'Guardar en favoritos',
+            tooltip: _event.isFavorite
+                ? 'Quitar de favoritos'
+                : 'Guardar en favoritos',
           ),
           const SizedBox(width: 10),
           EventCircleButton(
@@ -312,10 +343,17 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
-      decoration: BoxDecoration(color: AppColors.primarySoft, borderRadius: BorderRadius.circular(14)),
+      decoration: BoxDecoration(
+        color: AppColors.primarySoft,
+        borderRadius: BorderRadius.circular(14),
+      ),
       child: Row(
         children: [
-          const Icon(Icons.cloud_off_rounded, size: 18, color: AppColors.primary),
+          const Icon(
+            Icons.cloud_off_rounded,
+            size: 18,
+            color: AppColors.primary,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -339,7 +377,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Widget _buildContent(BuildContext context) {
-    final priceColor = _event.isFree ? const Color(0xFF3C7A32) : AppColors.primaryDark;
+    final priceColor = _event.isFree
+        ? const Color(0xFF3C7A32)
+        : AppColors.primaryDark;
     final descriptionOverflows = _descriptionOverflows(context);
 
     return Padding(
@@ -354,19 +394,32 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               EventPill(label: _event.category, icon: Icons.sell_outlined),
               EventPill(
                 label: _event.modalityLabel,
-                icon: _event.modality == EventModality.virtual ? Icons.videocam_outlined : Icons.groups_2_outlined,
+                icon: _event.modality == EventModality.virtual
+                    ? Icons.videocam_outlined
+                    : Icons.groups_2_outlined,
                 background: Colors.white,
                 foreground: AppColors.primaryDark,
                 borderColor: AppColors.border,
               ),
               if (_event.hasEnded)
-                const EventPill(label: 'Finalizado', background: Color(0xFF6B7280), foreground: Colors.white)
+                const EventPill(
+                  label: 'Finalizado',
+                  background: Color(0xFF6B7280),
+                  foreground: Colors.white,
+                )
               else if (_event.isSoldOut)
-                const EventPill(label: 'Cupos agotados', background: Color(0xFFC2410C), foreground: Colors.white),
+                const EventPill(
+                  label: 'Cupos agotados',
+                  background: Color(0xFFC2410C),
+                  foreground: Colors.white,
+                ),
             ],
           ),
           const SizedBox(height: 12),
-          Text(_event.title, style: AppText.h1.copyWith(fontSize: 26, height: 1.2)),
+          Text(
+            _event.title,
+            style: AppText.h1.copyWith(fontSize: 26, height: 1.2),
+          ),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -412,7 +465,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 ),
                 const Divider(height: 22, color: AppColors.border),
                 EventInfoRow(
-                  icon: _event.modality == EventModality.virtual ? Icons.videocam_outlined : Icons.groups_2_outlined,
+                  icon: _event.modality == EventModality.virtual
+                      ? Icons.videocam_outlined
+                      : Icons.groups_2_outlined,
                   title: 'Modalidad',
                   value: _event.modalityLabel,
                   subtitle: _event.modality == EventModality.virtual
@@ -430,8 +485,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 EventInfoRow(
                   icon: Icons.groups_2_outlined,
                   title: 'Cupos disponibles',
-                  value: _event.isSoldOut ? 'Sin cupos disponibles' : '${_event.spotsLeft} de ${_event.capacity}',
-                  subtitle: '${_event.attendees} ${_event.attendees == 1 ? 'persona inscrita' : 'personas inscritas'}',
+                  value: _event.isSoldOut
+                      ? 'Sin cupos disponibles'
+                      : '${_event.spotsLeft} de ${_event.capacity}',
+                  subtitle:
+                      '${_event.attendees} ${_event.attendees == 1 ? 'persona inscrita' : 'personas inscritas'}',
                   valueColor: _event.isSoldOut ? const Color(0xFFC2410C) : null,
                 ),
               ],
@@ -450,8 +508,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 Container(
                   width: 44,
                   height: 44,
-                  decoration: const BoxDecoration(color: AppColors.primarySoft, shape: BoxShape.circle),
-                  child: const Icon(Icons.people_alt_rounded, color: AppColors.primary),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primarySoft,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.people_alt_rounded,
+                    color: AppColors.primary,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -479,10 +543,17 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             duration: const Duration(milliseconds: 220),
             alignment: Alignment.topCenter,
             child: Text(
-              _event.description.isEmpty ? 'Sin descripción disponible.' : _event.description,
+              _event.description.isEmpty
+                  ? 'Sin descripción disponible.'
+                  : _event.description,
               maxLines: _descExpanded ? null : 4,
-              overflow: _descExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-              style: AppText.body.copyWith(height: 1.55, color: AppColors.text.withValues(alpha: 0.85)),
+              overflow: _descExpanded
+                  ? TextOverflow.visible
+                  : TextOverflow.ellipsis,
+              style: AppText.body.copyWith(
+                height: 1.55,
+                color: AppColors.text.withValues(alpha: 0.85),
+              ),
             ),
           ),
           if (descriptionOverflows || _descExpanded)
@@ -533,8 +604,13 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   bool _descriptionOverflows(BuildContext context) {
-    final text = _event.description.isEmpty ? 'Sin descripción disponible.' : _event.description;
-    final style = AppText.body.copyWith(height: 1.55, color: AppColors.text.withValues(alpha: 0.85));
+    final text = _event.description.isEmpty
+        ? 'Sin descripción disponible.'
+        : _event.description;
+    final style = AppText.body.copyWith(
+      height: 1.55,
+      color: AppColors.text.withValues(alpha: 0.85),
+    );
     final painter = TextPainter(
       text: TextSpan(text: text, style: style),
       maxLines: 4,
@@ -548,13 +624,22 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   Widget _buildBottomBar(BuildContext context) {
     final cta = _event.cta;
-    final canAct = cta == EventCta.free || cta == EventCta.paid || cta == EventCta.pendingPayment;
+    final canAct =
+        cta == EventCta.free ||
+        cta == EventCta.paid ||
+        cta == EventCta.pendingPayment;
     final bottom = MediaQuery.paddingOf(context).bottom;
 
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 18, offset: Offset(0, -4))],
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 18,
+            offset: Offset(0, -4),
+          ),
+        ],
       ),
       padding: EdgeInsets.fromLTRB(20, 12, 20, 12 + bottom),
       child: Column(
@@ -567,7 +652,13 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 children: [
                   Text('Total', style: AppText.caption.copyWith(fontSize: 12)),
                   const Spacer(),
-                  Text(_event.priceLabel, style: AppText.h3.copyWith(color: AppColors.primary, fontSize: 17)),
+                  Text(
+                    _event.priceLabel,
+                    style: AppText.h3.copyWith(
+                      color: AppColors.primary,
+                      fontSize: 17,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -579,16 +670,25 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                disabledBackgroundColor: _registering ? AppColors.primary : AppColors.grayLight,
-                disabledForegroundColor: _registering ? Colors.white : AppColors.gray,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                disabledBackgroundColor: _registering
+                    ? AppColors.primary
+                    : AppColors.grayLight,
+                disabledForegroundColor: _registering
+                    ? Colors.white
+                    : AppColors.gray,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
                 textStyle: AppText.button.copyWith(fontSize: 15),
               ),
               child: _registering
                   ? const SizedBox(
                       width: 22,
                       height: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.2,
+                        color: Colors.white,
+                      ),
                     )
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -610,7 +710,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(
-                'El pago se confirma al completar la pasarela.',
+                'Tu inscripción se confirma al completar el pago con Yape o Plin.',
                 style: AppText.caption.copyWith(fontSize: 10.5),
               ),
             ),
@@ -620,14 +720,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   IconData _ctaIcon(EventCta cta) => switch (cta) {
-        EventCta.free => Icons.how_to_reg_rounded,
-        EventCta.paid => Icons.shopping_bag_outlined,
-        EventCta.pendingPayment => Icons.credit_card_rounded,
-        EventCta.soldOut => Icons.event_busy_rounded,
-        EventCta.registered => Icons.check_circle_rounded,
-        EventCta.ended => Icons.flag_rounded,
-        EventCta.unavailable => Icons.block_rounded,
-      };
+    EventCta.free => Icons.how_to_reg_rounded,
+    EventCta.paid => Icons.shopping_bag_outlined,
+    EventCta.pendingPayment => Icons.credit_card_rounded,
+    EventCta.soldOut => Icons.event_busy_rounded,
+    EventCta.registered => Icons.check_circle_rounded,
+    EventCta.ended => Icons.flag_rounded,
+    EventCta.unavailable => Icons.block_rounded,
+  };
 }
 
 class _OrganizerAvatar extends StatelessWidget {

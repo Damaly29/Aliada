@@ -57,6 +57,7 @@ supabase/migrations/0001_alerts_mvp.sql
 ...
 supabase/migrations/0008_events.sql
 supabase/migrations/0009_events_remove_demo_seed.sql
+supabase/migrations/0010_event_payments.sql
 ```
 
 - `0008_events.sql` crea `events`, `event_registrations`, `event_favorites`, sus
@@ -100,9 +101,32 @@ ejecuta `supabase/seed_events.sql` en el SQL Editor después de aplicar el esque
 El archivo actualiza la Feria de Bienestar y agrega los títulos que falten, así
 que se puede volver a ejecutar sin duplicar estos eventos.
 
-Los eventos gratuitos permiten confirmar la inscripción desde la app. Los eventos
-con precio muestran su costo, pero la pasarela todavía no está conectada; por eso
-la app no confirma ni cobra una inscripción pagada.
+Los eventos gratuitos permiten confirmar la inscripción desde la app. Para los
+eventos de pago, `0010_event_payments.sql` añade órdenes de Culqi y mantiene la
+inscripción pendiente hasta recibir el webhook verificado.
+
+### Pagos de prueba con Yape y Plin
+
+La integración requiere desplegar `supabase/functions/event-payment` en el mismo
+proyecto y registrar sus secretos desde **Supabase → Edge Functions → Secrets**:
+
+- `CULQI_SECRET_KEY`: llave secreta de integración (`sk_test_...`) de Culqi.
+- `CULQI_PUBLIC_KEY`: llave pública de integración (`pk_test_...`) de Culqi.
+- `CULQI_WEBHOOK_AUTH`: usuario y contraseña del webhook, en el formato
+  `usuario:contraseña`; usa los mismos datos al activar autenticación en Culqi.
+
+Configura en Culqi el webhook `order.status.changed` con la URL
+`https://<proyecto>.supabase.co/functions/v1/event-payment` y envía el evento de
+`order.status.changed` y activa autenticación con las credenciales guardadas en
+`CULQI_WEBHOOK_AUTH`. No agregues llaves privadas a Flutter ni al archivo
+`supabase.json`. La Edge Function autentica la llamada del webhook y consulta la
+orden directamente con Culqi antes de confirmar una inscripción.
+
+Aplica las migraciones en orden hasta `0010_event_payments.sql`, despliega la
+función y configura las tres llaves en modo test antes de probar. Culqi exige
+que las órdenes de billeteras estén entre S/ 6 y S/ 500 y el checkout muestra el
+QR para completar el pago. La Agenda muestra tanto pagos pendientes como
+inscripciones confirmadas.
 
 ### Diagnóstico
 
@@ -121,3 +145,10 @@ Si la app muestra «No hay eventos disponibles» pero crees que hay eventos, eje
 - Los eventos de pago abren la hoja de checkout, pero **no** confirman la compra:
   `confirm_event_payment` está reservada a `service_role` para que la pasarela o
   el webhook la invoque cuando el pago esté verificado.
+- `0010_event_payments.sql` y `supabase/functions/event-payment` preparan el
+  flujo de órdenes Culqi para Yape y Plin y el webhook asíncrono. La función y
+  la migración se deben desplegar/aplicar en el proyecto Supabase para cobrar.
+
+Culqi muestra un QR de billeteras móviles para que la participante lo pague desde
+Yape o Plin. El checkout de Culqi genera el QR. Los montos de esos pagos deben
+estar entre S/ 6 y S/ 500.
